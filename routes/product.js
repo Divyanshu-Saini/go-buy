@@ -12,14 +12,27 @@ router.get('/products', (req, res) => {
     })
     .catch((err) => {
       console.log(err);
+      res.status(422).json({ error: 'Error occured while fetching product', error: err });
     });
 });
 
-router.post('/addProduct', (req, res) => {
+router.get('/product/:productId', (req, res) => {
+  Product.findById(req.params.productId)
+    .sort('-createdAt')
+    .then((product) => {
+      res.json({ product });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(422).json({ error: 'Error in finding product', error: err });
+    });
+});
+
+router.post('/product', (req, res) => {
   const { name, type, imageLink, price } = req.body;
 
   if (!name || !type || !imageLink || !price) {
-    return res.status(422).json({ error: 'To add product into the system , provide all the details' });
+    return res.status(422).json({ errormsg: 'To add product into the system , provide all the details' });
   }
 
   const product = new Product({
@@ -36,24 +49,34 @@ router.post('/addProduct', (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(404).json({ error: 'Error in adding product into the system', error: err });
+      res.status(422).json({ errormsg: 'Error in adding product into the system', error: err });
     });
 });
 
-router.delete('/deleteProduct/:productId', (req, res) => {
-  Product.findOne({ _id: req.params.productId }).exec((err, product) => {
-    if (err || !product) {
-      return res.status(422).json({ error: err });
+router.put('/product', (req, res) => {
+  const updateProduct = {
+    name: req.body.name,
+    imageLink: req.body.imageLink,
+    price: req.body.price,
+  };
+  Product.findByIdAndUpdate(req.body.productId, updateProduct, {
+    overwrite: true,
+  }).exec((err, product) => {
+    console.log(err, product);
+    if (err) {
+      return res.status(422).json({ errormsg: 'Error in updaing product into the system', error: err });
+    } else {
+      res.json(product);
     }
-    if (product._id.toString() === req.productId.toString()) {
-      post
-        .remove()
-        .then((result) => {
-          res.json(result);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  });
+});
+
+router.delete('/product/:productId', (req, res) => {
+  Product.findOneAndDelete({ _id: req.params.productId }).exec((err, product) => {
+    if (err) {
+      return res.status(422).json({ errormsg: 'Error in deleting product into the system', error: err });
+    } else {
+      res.json(product);
     }
   });
 });
