@@ -5,5 +5,14 @@
   "main": "app.js",
   "repository": "https://github.com/Divyanshu-Saini/go-buy.git",
   "author": "Divyanshu Saini",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.2",
+    "mongoose": "^6.2.0"
+  },
+  "scripts": {
+    "start": "nodemon app.js"
+  }
 }
